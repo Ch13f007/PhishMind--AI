@@ -9,7 +9,7 @@
 
 ---
 
-## 🚨 The Problem
+## The Problem
 
 Small and medium-sized enterprises (SMEs) across Africa face a growing wave of phishing and smishing (SMS/WhatsApp) attacks — yet have no access to affordable, adaptive security awareness tools.
 
@@ -19,20 +19,20 @@ Small and medium-sized enterprises (SMEs) across Africa face a growing wave of p
 
 ---
 
-## 💡 The Solution
+## The Solution
 
 **PhishMind AI** is an adaptive security awareness platform that uses AI to generate personalised phishing simulations for each employee — based on their role and industry — and tracks their risk level over time.
 
 ### Core Features (MVP)
-- 🤖 **AI-generated simulations** — personalised phishing emails and smishing messages per employee role and industry
-- 📊 **Risk scoring** — tracks employee behaviour over time with plain-English explanations
-- ⚡ **Instant awareness training** — triggered the moment an employee clicks a simulated phishing link
-- 📋 **Admin dashboard** — launch campaigns, monitor results, and generate reports
-- 💰 **Affordable pricing** — designed specifically for African SMEs
+- **AI-generated simulations** — personalised phishing emails and smishing messages per employee role and industry
+-  **Risk scoring** — tracks employee behaviour over time with plain-English explanations
+- **Instant awareness training** — triggered the moment an employee clicks a simulated phishing link
+- **Admin dashboard** — launch campaigns, monitor results, and generate reports
+- **Affordable pricing** — designed specifically for African SMEs
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 phishmind-ai/
@@ -88,7 +88,7 @@ phishmind-ai/
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - Python 3.11+
@@ -127,7 +127,7 @@ npm run dev
 
 ---
 
-## 🔐 Environment Variables
+## Environment Variables
 
 Copy `.env.example` to `.env` and fill in your keys:
 
@@ -143,7 +143,7 @@ SECRET_KEY=your_secret_key
 
 ---
 
-## 📍 Roadmap
+## Roadmap
 
 ### MVP (Hackathon)
 - [x] Project scaffold and documentation
