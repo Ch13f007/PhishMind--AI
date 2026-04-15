@@ -74,7 +74,7 @@ phishmind-ai/
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Layer | Technology |
 |---|---|
@@ -163,7 +163,7 @@ SECRET_KEY=your_secret_key
 
 ---
 
-## 👤 Author
+## Author
 
 Tatenda Chitanda
 Built with ❤️ for the Cybersecurity Hackathon.
