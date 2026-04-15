@@ -165,6 +165,7 @@ SECRET_KEY=your_secret_key
 
 ## 👤 Author
 
+Tatenda Chitanda
 Built with ❤️ for the Cybersecurity Hackathon.
 
 ---
