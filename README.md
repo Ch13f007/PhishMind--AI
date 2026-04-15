@@ -100,7 +100,7 @@ phishmind-ai/
 ### Backend Setup
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/phishmind-ai.git
+git clone https://github.com/Ch13f007/phishmind-ai.git
 cd phishmind-ai
 
 # Create virtual environment
