@@ -1,4 +1,4 @@
-# 🎣 PhishMind AI
+# PhishMind AI
 
 > Adaptive AI-Powered Phishing Awareness for African SMEs
 
