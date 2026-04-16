@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from backend.database import init_db
+from backend.routes import employees, campaigns, tracking
 
 app = FastAPI(
     title="PhishMind AI",
@@ -31,3 +32,8 @@ def root():
 @app.get("/health")
 def health_check():
     return {"status": "healthy", "version": "0.1.0"}
+
+
+app.include_router(employees.router, prefix="/api/employees", tags=["Employees"])
+app.include_router(campaigns.router, prefix="/api/campaigns", tags=["Campaigns"])
+app.include_router(tracking.router, prefix="/api/track", tags=["Tracking"])
