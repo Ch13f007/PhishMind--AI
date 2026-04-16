@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<!-- saved from url=(0047)file:///C:/Users/taten/Downloads/dashboard.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PhishMind AI — Dashboard</title>
+<link href="./Dashboard_files/css2" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2234;
+    --border: #1e2d45;
+    --accent: #00e5ff;
+    --accent2: #ff3d71;
+    --accent3: #00e096;
+    --warning: #ffaa00;
+    --text: #e8edf5;
+    --text-muted: #5a6a82;
+    --text-dim: #8899aa;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 240px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+    padding: 0 0 24px 0;
+  }
+
+  .logo {
+    padding: 28px 24px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo-text {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--accent);
+  }
+
+  .logo-sub {
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 4px;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .nav {
+    flex: 1;
+    padding: 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+  }
+
+  .nav-item:hover {
+    background: var(--surface2);
+    color: var(--text);
+  }
+
+  .nav-item.active {
+    background: rgba(0,229,255,0.08);
+    color: var(--accent);
+    border-color: rgba(0,229,255,0.2);
+  }
+
+  .nav-icon { font-size: 18px; width: 22px; text-align: center; }
+
+  .sidebar-footer {
+    padding: 16px 24px 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .status-dot {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--accent3);
+    font-family: 'Space Mono', monospace;
+  }
+
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent3);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  /* Main content */
+  .main {
+    margin-left: 240px;
+    min-height: 100vh;
+    position: relative;
+    z-index: 1;
+  }
+
+  .topbar {
+    padding: 20px 32px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(10,14,26,0.8);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .page-title {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .api-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    background: rgba(0,224,150,0.1);
+    color: var(--accent3);
+    border: 1px solid rgba(0,224,150,0.2);
+  }
+
+  .content {
+    padding: 32px;
+  }
+
+  /* Pages */
+  .page { display: none; }
+  .page.active { display: block; animation: fadeIn 0.3s ease; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Stats grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .stat-card:hover { border-color: var(--accent); }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+
+  .stat-card.blue::before { background: var(--accent); }
+  .stat-card.red::before { background: var(--accent2); }
+  .stat-card.green::before { background: var(--accent3); }
+  .stat-card.yellow::before { background: var(--warning); }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-family: 'Space Mono', monospace;
+    margin-bottom: 12px;
+  }
+
+  .stat-value {
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1;
+  }
+
+  .stat-card.blue .stat-value { color: var(--accent); }
+  .stat-card.red .stat-value { color: var(--accent2); }
+  .stat-card.green .stat-value { color: var(--accent3); }
+  .stat-card.yellow .stat-value { color: var(--warning); }
+
+  .stat-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 6px;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  .card-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-title {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+
+  .card-body { padding: 24px; }
+
+  /* Table */
+  .table { width: 100%; border-collapse: collapse; }
+
+  .table th {
+    text-align: left;
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-family: 'Space Mono', monospace;
+    padding: 0 16px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .table td {
+    padding: 14px 16px;
+    font-size: 14px;
+    border-bottom: 1px solid rgba(30,45,69,0.5);
+  }
+
+  .table tr:last-child td { border-bottom: none; }
+  .table tr:hover td { background: rgba(0,229,255,0.02); }
+
+  /* Risk badge */
+  .risk-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .risk-bar {
+    height: 6px;
+    border-radius: 3px;
+    background: var(--border);
+    width: 80px;
+    overflow: hidden;
+  }
+
+  .risk-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.5s ease;
+  }
+
+  .risk-low .risk-fill { background: var(--accent3); }
+  .risk-med .risk-fill { background: var(--warning); }
+  .risk-high .risk-fill { background: var(--accent2); }
+
+  .risk-label {
+    font-size: 12px;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .risk-low .risk-label { color: var(--accent3); }
+  .risk-med .risk-label { color: var(--warning); }
+  .risk-high .risk-label { color: var(--accent2); }
+
+  /* Badge */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .badge-blue { background: rgba(0,229,255,0.1); color: var(--accent); border: 1px solid rgba(0,229,255,0.2); }
+  .badge-green { background: rgba(0,224,150,0.1); color: var(--accent3); border: 1px solid rgba(0,224,150,0.2); }
+  .badge-red { background: rgba(255,61,113,0.1); color: var(--accent2); border: 1px solid rgba(255,61,113,0.2); }
+  .badge-yellow { background: rgba(255,170,0,0.1); color: var(--warning); border: 1px solid rgba(255,170,0,0.2); }
+
+  /* Forms */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group.full { grid-column: 1 / -1; }
+
+  .form-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .form-input, .form-select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+
+  .form-input:focus, .form-select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,229,255,0.08);
+  }
+
+  .form-select option { background: var(--surface2); }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    letter-spacing: -0.2px;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #0a0e1a;
+  }
+
+  .btn-primary:hover {
+    background: #33ecff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(0,229,255,0.3);
+  }
+
+  .btn-danger {
+    background: rgba(255,61,113,0.15);
+    color: var(--accent2);
+    border: 1px solid rgba(255,61,113,0.3);
+  }
+
+  .btn-danger:hover { background: rgba(255,61,113,0.25); }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+  }
+
+  .btn-outline:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .btn-sm { padding: 6px 14px; font-size: 12px; }
+
+  /* Alert */
+  .alert {
+    padding: 14px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .alert-success {
+    background: rgba(0,224,150,0.1);
+    border: 1px solid rgba(0,224,150,0.3);
+    color: var(--accent3);
+  }
+
+  .alert-error {
+    background: rgba(255,61,113,0.1);
+    border: 1px solid rgba(255,61,113,0.3);
+    color: var(--accent2);
+  }
+
+  .alert-info {
+    background: rgba(0,229,255,0.1);
+    border: 1px solid rgba(0,229,255,0.3);
+    color: var(--accent);
+  }
+
+  /* Simulation result */
+  .sim-result {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 20px;
+  }
+
+  .sim-email {
+    background: #fff;
+    color: #1a1a2e;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 12px;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .sim-email a { color: #0066cc; }
+
+  .red-flags {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .red-flag {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 14px;
+    background: rgba(255,61,113,0.06);
+    border: 1px solid rgba(255,61,113,0.15);
+    border-radius: 6px;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+
+  .red-flag-icon { color: var(--accent2); flex-shrink: 0; margin-top: 1px; }
+
+  /* Loading spinner */
+  .spinner {
+    width: 20px; height: 20px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: inline-block;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Empty state */
+  .empty {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--text-muted);
+  }
+
+  .empty-icon { font-size: 40px; margin-bottom: 12px; }
+  .empty-text { font-size: 15px; font-weight: 600; margin-bottom: 6px; color: var(--text-dim); }
+  .empty-sub { font-size: 13px; }
+
+  /* Tracking link */
+  .tracking-link {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    color: var(--accent);
+    word-break: break-all;
+    margin-top: 12px;
+  }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+  @media (max-width: 1100px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .two-col { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-text">🎣 PhishMind AI</div>
+    <div class="logo-sub">Security Awareness Platform</div>
+  </div>
+  <nav class="nav">
+    <div class="nav-item active" onclick="navigate(&#39;dashboard&#39;, this)">
+      <span class="nav-icon">📊</span> Dashboard
+    </div>
+    <div class="nav-item" onclick="navigate(&#39;employees&#39;, this)">
+      <span class="nav-icon">👥</span> Employees
+    </div>
+    <div class="nav-item" onclick="navigate(&#39;campaigns&#39;, this)">
+      <span class="nav-icon">📧</span> Campaigns
+    </div>
+    <div class="nav-item" onclick="navigate(&#39;simulate&#39;, this)">
+      <span class="nav-icon">🎯</span> Run Simulation
+    </div>
+    <div class="nav-item" onclick="navigate(&#39;results&#39;, this)">
+      <span class="nav-icon">📈</span> Results
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="status-dot">
+      <div class="dot"></div>
+      API Connected
+    </div>
+  </div>
+</aside>
+
+<!-- Main -->
+<main class="main">
+  <div class="topbar">
+    <div class="page-title" id="pageTitle">Dashboard</div>
+    <div class="topbar-right">
+      <div class="api-badge">● LIVE</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD PAGE -->
+    <div class="page active" id="page-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card blue">
+          <div class="stat-label">Total Employees</div>
+          <div class="stat-value" id="stat-employees">—</div>
+          <div class="stat-sub">Registered in system</div>
+        </div>
+        <div class="stat-card yellow">
+          <div class="stat-label">Campaigns</div>
+          <div class="stat-value" id="stat-campaigns">—</div>
+          <div class="stat-sub">Created so far</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-label">Clicks Recorded</div>
+          <div class="stat-value" id="stat-clicks">—</div>
+          <div class="stat-sub">Simulations clicked</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">Avg Risk Score</div>
+          <div class="stat-value" id="stat-risk">—</div>
+          <div class="stat-sub">Across all employees</div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">⚠️ High Risk Employees</div>
+            <span class="badge badge-red">Needs Attention</span>
+          </div>
+          <div class="card-body" id="high-risk-list">
+            <div class="empty">
+              <div class="empty-icon">🛡️</div>
+              <div class="empty-text">No high risk employees</div>
+              <div class="empty-sub">Run simulations to build risk profiles</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📋 Recent Campaigns</div>
+            <button class="btn btn-outline btn-sm" onclick="navigate(&#39;campaigns&#39;, document.querySelector(&#39;[onclick*=campaigns]&#39;))">View All</button>
+          </div>
+          <div class="card-body" id="recent-campaigns-list">
+            <div class="empty">
+              <div class="empty-icon">📧</div>
+              <div class="empty-text">No campaigns yet</div>
+              <div class="empty-sub">Create your first campaign</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EMPLOYEES PAGE -->
+    <div class="page" id="page-employees">
+      <div class="two-col">
+        <div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">➕ Add Employee</div>
+            </div>
+            <div class="card-body">
+              <div id="emp-alert"></div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label">Full Name</label>
+                  <input class="form-input" id="emp-name" placeholder="e.g. Amara Osei">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Email Address</label>
+                  <input class="form-input" id="emp-email" placeholder="amara@sentracore.com" type="email">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Job Role</label>
+                  <input class="form-input" id="emp-role" placeholder="e.g. Finance Manager">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Industry</label>
+                  <select class="form-select" id="emp-industry">
+                    <option value="fintech">Fintech</option>
+                    <option value="healthcare">Healthcare</option>
+                    <option value="ecommerce">E-commerce</option>
+                    <option value="general">General</option>
+                  </select>
+                </div>
+              </div>
+              <br>
+              <button class="btn btn-primary" onclick="addEmployee()">
+                ➕ Add Employee
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">👥 All Employees</div>
+              <button class="btn btn-outline btn-sm" onclick="loadEmployees()">↻ Refresh</button>
+            </div>
+            <div id="employees-table-wrap">
+              <div class="empty" style="padding:32px">
+                <div class="spinner"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CAMPAIGNS PAGE -->
+    <div class="page" id="page-campaigns">
+      <div class="two-col">
+        <div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">➕ Create Campaign</div>
+            </div>
+            <div class="card-body">
+              <div id="camp-alert"></div>
+              <div class="form-grid">
+                <div class="form-group full">
+                  <label class="form-label">Campaign Name</label>
+                  <input class="form-input" id="camp-name" placeholder="e.g. Sentracore Q2 Phishing Test">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Simulation Type</label>
+                  <select class="form-select" id="camp-type">
+                    <option value="email">Email Phishing</option>
+                    <option value="sms">SMS / WhatsApp</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Industry</label>
+                  <select class="form-select" id="camp-industry">
+                    <option value="fintech">Fintech</option>
+                    <option value="healthcare">Healthcare</option>
+                    <option value="ecommerce">E-commerce</option>
+                    <option value="general">General</option>
+                  </select>
+                </div>
+              </div>
+              <br>
+              <button class="btn btn-primary" onclick="addCampaign()">
+                🚀 Create Campaign
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">📧 All Campaigns</div>
+              <button class="btn btn-outline btn-sm" onclick="loadCampaigns()">↻ Refresh</button>
+            </div>
+            <div id="campaigns-table-wrap">
+              <div class="empty" style="padding:32px">
+                <div class="spinner"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIMULATE PAGE -->
+    <div class="page" id="page-simulate">
+      <div class="card" style="max-width: 700px;">
+        <div class="card-header">
+          <div class="card-title">🎯 Launch Phishing Simulation</div>
+          <span class="badge badge-blue">AI Powered</span>
+        </div>
+        <div class="card-body">
+          <div id="sim-alert"></div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Select Employee</label>
+              <select class="form-select" id="sim-employee"></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Select Campaign</label>
+              <select class="form-select" id="sim-campaign"></select>
+            </div>
+          </div>
+          <br>
+          <button class="btn btn-primary" onclick="runSimulation()">
+            ⚡ Generate Simulation
+          </button>
+
+          <div id="sim-result" style="display:none">
+            <br>
+            <div class="alert alert-info">✅ Simulation generated successfully! Below is what the employee would receive.</div>
+            <div class="sim-result">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <strong id="sim-type-label" style="color:var(--accent); font-size:13px; font-family:&#39;Space Mono&#39;,monospace;"></strong>
+                <span class="badge badge-red">SIMULATION ONLY</span>
+              </div>
+              <div id="sim-content"></div>
+              <div style="margin-top:16px;">
+                <div style="font-size:12px; color:var(--text-muted); font-family:&#39;Space Mono&#39;,monospace; margin-bottom:8px;">TRACKING LINK:</div>
+                <div class="tracking-link" id="sim-tracking"></div>
+                <div style="margin-top:10px;">
+                  <button class="btn btn-danger btn-sm" onclick="testTrackingLink()">🖱️ Test Click (Simulate Employee Click)</button>
+                </div>
+              </div>
+              <div style="margin-top:20px;">
+                <div style="font-size:13px; font-weight:700; color:var(--accent2); margin-bottom:10px;">🚩 Red Flags In This Simulation:</div>
+                <div class="red-flags" id="sim-redflags"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULTS PAGE -->
+    <div class="page" id="page-results">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📈 Employee Risk Scores</div>
+          <button class="btn btn-outline btn-sm" onclick="loadResults()">↻ Refresh</button>
+        </div>
+        <div id="results-table-wrap">
+          <div class="empty" style="padding:32px">
+            <div class="spinner"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+  const API = 'http://127.0.0.1:8000';
+  let currentTrackingUrl = '';
+
+  // Navigation
+  function navigate(page, el) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('page-' + page).classList.add('active');
+    if (el) el.classList.add('active');
+    const titles = {
+      dashboard: 'Dashboard',
+      employees: 'Employees',
+      campaigns: 'Campaigns',
+      simulate: 'Run Simulation',
+      results: 'Results & Risk Scores'
+    };
+    document.getElementById('pageTitle').textContent = titles[page] || page;
+
+    if (page === 'dashboard') loadDashboard();
+    if (page === 'employees') loadEmployees();
+    if (page === 'campaigns') loadCampaigns();
+    if (page === 'simulate') loadSimulateDropdowns();
+    if (page === 'results') loadResults();
+  }
+
+  // API helpers
+  async function get(path) {
+    const r = await fetch(API + path);
+    return r.json();
+  }
+
+  async function post(path, body) {
+    const r = await fetch(API + path, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    return r.json();
+  }
+
+  // Risk helpers
+  function getRiskClass(score) {
+    if (score >= 75) return 'risk-high';
+    if (score >= 25) return 'risk-med';
+    return 'risk-low';
+  }
+
+  function getRiskLabel(score) {
+    if (score >= 75) return 'HIGH';
+    if (score >= 25) return 'MEDIUM';
+    return 'LOW';
+  }
+
+  function riskBar(score) {
+    const cls = getRiskClass(score);
+    const label = getRiskLabel(score);
+    return `<div class="risk-bar-wrap ${cls}">
+      <div class="risk-bar"><div class="risk-fill" style="width:${score}%"></div></div>
+      <span class="risk-label">${label} (${score})</span>
+    </div>`;
+  }
+
+  // DASHBOARD
+  async function loadDashboard() {
+    try {
+      const [employees, campaigns] = await Promise.all([
+        get('/api/employees/'),
+        get('/api/campaigns/')
+      ]);
+
+      document.getElementById('stat-employees').textContent = employees.length;
+      document.getElementById('stat-campaigns').textContent = campaigns.length;
+
+      const totalClicks = employees.filter(e => e.risk_score > 0).length;
+      document.getElementById('stat-clicks').textContent = totalClicks;
+
+      const avgRisk = employees.length
+        ? Math.round(employees.reduce((s, e) => s + e.risk_score, 0) / employees.length)
+        : 0;
+      document.getElementById('stat-risk').textContent = avgRisk;
+
+      // High risk
+      const highRisk = employees.filter(e => e.risk_score >= 25).sort((a,b) => b.risk_score - a.risk_score);
+      const hrEl = document.getElementById('high-risk-list');
+      if (highRisk.length === 0) {
+        hrEl.innerHTML = `<div class="empty"><div class="empty-icon">🛡️</div><div class="empty-text">No high risk employees</div><div class="empty-sub">Run simulations to build risk profiles</div></div>`;
+      } else {
+        hrEl.innerHTML = highRisk.map(e => `
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border);">
+            <div>
+              <div style="font-size:14px; font-weight:600;">${e.name}</div>
+              <div style="font-size:12px; color:var(--text-muted);">${e.role} · ${e.industry}</div>
+            </div>
+            ${riskBar(e.risk_score)}
+          </div>
+        `).join('');
+      }
+
+      // Recent campaigns
+      const rcEl = document.getElementById('recent-campaigns-list');
+      if (campaigns.length === 0) {
+        rcEl.innerHTML = `<div class="empty"><div class="empty-icon">📧</div><div class="empty-text">No campaigns yet</div></div>`;
+      } else {
+        rcEl.innerHTML = campaigns.slice(-5).reverse().map(c => `
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border);">
+            <div>
+              <div style="font-size:14px; font-weight:600;">${c.name}</div>
+              <div style="font-size:12px; color:var(--text-muted);">${c.simulation_type} · ${c.industry}</div>
+            </div>
+            <span class="badge ${c.status === 'active' ? 'badge-green' : 'badge-yellow'}">${c.status}</span>
+          </div>
+        `).join('');
+      }
+    } catch(e) {
+      console.error(e);
+    }
+  }
+
+  // EMPLOYEES
+  async function loadEmployees() {
+    try {
+      const employees = await get('/api/employees/');
+      const wrap = document.getElementById('employees-table-wrap');
+      if (employees.length === 0) {
+        wrap.innerHTML = `<div class="empty"><div class="empty-icon">👥</div><div class="empty-text">No employees added yet</div></div>`;
+        return;
+      }
+      wrap.innerHTML = `<table class="table">
+        <thead><tr>
+          <th>Name</th><th>Role</th><th>Industry</th><th>Risk Score</th>
+        </tr></thead>
+        <tbody>${employees.map(e => `<tr>
+          <td><strong>${e.name}</strong><br><span style="font-size:12px;color:var(--text-muted)">${e.email}</span></td>
+          <td>${e.role}</td>
+          <td><span class="badge badge-blue">${e.industry}</span></td>
+          <td>${riskBar(e.risk_score)}</td>
+        </tr>`).join('')}</tbody>
+      </table>`;
+    } catch(e) {
+      document.getElementById('employees-table-wrap').innerHTML = `<div class="empty"><div class="empty-text">Could not connect to API</div></div>`;
+    }
+  }
+
+  async function addEmployee() {
+    const name = document.getElementById('emp-name').value.trim();
+    const email = document.getElementById('emp-email').value.trim();
+    const role = document.getElementById('emp-role').value.trim();
+    const industry = document.getElementById('emp-industry').value;
+    const alertEl = document.getElementById('emp-alert');
+
+    if (!name || !email || !role) {
+      alertEl.innerHTML = `<div class="alert alert-error">⚠️ Please fill in all fields.</div>`;
+      return;
+    }
+
+    try {
+      const result = await post('/api/employees/', { name, email, role, industry });
+      if (result.id) {
+        alertEl.innerHTML = `<div class="alert alert-success">✅ ${name} added successfully!</div>`;
+        document.getElementById('emp-name').value = '';
+        document.getElementById('emp-email').value = '';
+        document.getElementById('emp-role').value = '';
+        loadEmployees();
+      } else {
+        alertEl.innerHTML = `<div class="alert alert-error">⚠️ ${result.detail || 'Error adding employee.'}</div>`;
+      }
+    } catch(e) {
+      alertEl.innerHTML = `<div class="alert alert-error">⚠️ Could not connect to API.</div>`;
+    }
+  }
+
+  // CAMPAIGNS
+  async function loadCampaigns() {
+    try {
+      const campaigns = await get('/api/campaigns/');
+      const wrap = document.getElementById('campaigns-table-wrap');
+      if (campaigns.length === 0) {
+        wrap.innerHTML = `<div class="empty"><div class="empty-icon">📧</div><div class="empty-text">No campaigns yet</div></div>`;
+        return;
+      }
+      wrap.innerHTML = `<table class="table">
+        <thead><tr><th>Name</th><th>Type</th><th>Industry</th><th>Status</th></tr></thead>
+        <tbody>${campaigns.map(c => `<tr>
+          <td><strong>${c.name}</strong></td>
+          <td><span class="badge badge-blue">${c.simulation_type}</span></td>
+          <td>${c.industry}</td>
+          <td><span class="badge ${c.status === 'active' ? 'badge-green' : 'badge-yellow'}">${c.status}</span></td>
+        </tr>`).join('')}</tbody>
+      </table>`;
+    } catch(e) {
+      document.getElementById('campaigns-table-wrap').innerHTML = `<div class="empty"><div class="empty-text">Could not connect to API</div></div>`;
+    }
+  }
+
+  async function addCampaign() {
+    const name = document.getElementById('camp-name').value.trim();
+    const simulation_type = document.getElementById('camp-type').value;
+    const industry = document.getElementById('camp-industry').value;
+    const alertEl = document.getElementById('camp-alert');
+
+    if (!name) {
+      alertEl.innerHTML = `<div class="alert alert-error">⚠️ Please enter a campaign name.</div>`;
+      return;
+    }
+
+    try {
+      const result = await post('/api/campaigns/', { name, simulation_type, industry });
+      if (result.id) {
+        alertEl.innerHTML = `<div class="alert alert-success">✅ Campaign "${name}" created!</div>`;
+        document.getElementById('camp-name').value = '';
+        loadCampaigns();
+      } else {
+        alertEl.innerHTML = `<div class="alert alert-error">⚠️ ${result.detail || 'Error creating campaign.'}</div>`;
+      }
+    } catch(e) {
+      alertEl.innerHTML = `<div class="alert alert-error">⚠️ Could not connect to API.</div>`;
+    }
+  }
+
+  // SIMULATE
+  async function loadSimulateDropdowns() {
+    try {
+      const [employees, campaigns] = await Promise.all([
+        get('/api/employees/'),
+        get('/api/campaigns/')
+      ]);
+
+      const empSel = document.getElementById('sim-employee');
+      empSel.innerHTML = employees.length
+        ? employees.map(e => `<option value="${e.id}">${e.name} (${e.role})</option>`).join('')
+        : '<option disabled>No employees added yet</option>';
+
+      const campSel = document.getElementById('sim-campaign');
+      campSel.innerHTML = campaigns.length
+        ? campaigns.map(c => `<option value="${c.id}">${c.name}</option>`).join('')
+        : '<option disabled>No campaigns created yet</option>';
+    } catch(e) {}
+  }
+
+  async function runSimulation() {
+    const employee_id = parseInt(document.getElementById('sim-employee').value);
+    const campaign_id = parseInt(document.getElementById('sim-campaign').value);
+    const alertEl = document.getElementById('sim-alert');
+    const resultEl = document.getElementById('sim-result');
+
+    resultEl.style.display = 'none';
+
+    try {
+      const result = await post('/api/track/simulate', { employee_id, campaign_id });
+      if (result.simulation) {
+        currentTrackingUrl = result.tracking_url;
+        const sim = result.simulation;
+        const isEmail = result.simulation_type === 'email';
+
+        document.getElementById('sim-type-label').textContent = isEmail ? '📧 EMAIL SIMULATION' : '📱 SMS SIMULATION';
+        document.getElementById('sim-tracking').textContent = result.tracking_url;
+
+        if (isEmail) {
+          document.getElementById('sim-content').innerHTML = `
+            <div class="sim-email">
+              <div style="margin-bottom:12px; padding-bottom:12px; border-bottom:1px solid #eee;">
+                <div><strong>From:</strong> ${sim.sender_name} &lt;${sim.sender_email}&gt;</div>
+                <div><strong>Subject:</strong> ${sim.subject}</div>
+              </div>
+              ${sim.body}
+            </div>`;
+        } else {
+          document.getElementById('sim-content').innerHTML = `
+            <div style="background:#1a1a2e; border-radius:8px; padding:16px; color:#fff; font-family:'Space Mono',monospace; font-size:13px;">
+              📱 ${sim.message.replace(result.tracking_url, `<a href="${result.tracking_url}" style="color:#00e5ff">[LINK]</a>`)}
+            </div>`;
+        }
+
+        document.getElementById('sim-redflags').innerHTML = sim.red_flags.map(f =>
+          `<div class="red-flag"><span class="red-flag-icon">🚩</span>${f}</div>`
+        ).join('');
+
+        resultEl.style.display = 'block';
+      } else {
+        alertEl.innerHTML = `<div class="alert alert-error">⚠️ ${result.detail || 'Error generating simulation.'}</div>`;
+      }
+    } catch(e) {
+      alertEl.innerHTML = `<div class="alert alert-error">⚠️ Could not connect to API.</div>`;
+    }
+  }
+
+  function testTrackingLink() {
+    if (currentTrackingUrl) window.open(currentTrackingUrl, '_blank');
+  }
+
+  // RESULTS
+  async function loadResults() {
+    try {
+      const employees = await get('/api/employees/');
+      const wrap = document.getElementById('results-table-wrap');
+      if (employees.length === 0) {
+        wrap.innerHTML = `<div class="empty"><div class="empty-icon">📈</div><div class="empty-text">No data yet</div><div class="empty-sub">Add employees and run simulations first</div></div>`;
+        return;
+      }
+      const sorted = [...employees].sort((a,b) => b.risk_score - a.risk_score);
+      wrap.innerHTML = `<table class="table">
+        <thead><tr><th>Employee</th><th>Role</th><th>Industry</th><th>Risk Score</th><th>Status</th></tr></thead>
+        <tbody>${sorted.map(e => `<tr>
+          <td><strong>${e.name}</strong><br><span style="font-size:12px;color:var(--text-muted)">${e.email}</span></td>
+          <td>${e.role}</td>
+          <td><span class="badge badge-blue">${e.industry}</span></td>
+          <td>${riskBar(e.risk_score)}</td>
+          <td><span class="badge ${e.risk_score >= 75 ? 'badge-red' : e.risk_score >= 25 ? 'badge-yellow' : 'badge-green'}">
+            ${e.risk_score >= 75 ? '⚠️ HIGH RISK' : e.risk_score >= 25 ? '⚡ MEDIUM' : '✅ SAFE'}
+          </span></td>
+        </tr>`).join('')}</tbody>
+      </table>`;
+    } catch(e) {
+      document.getElementById('results-table-wrap').innerHTML = `<div class="empty"><div class="empty-text">Could not connect to API</div></div>`;
+    }
+  }
+
+  // Init
+  loadDashboard();
+</script>
+
+
+</body></html>
